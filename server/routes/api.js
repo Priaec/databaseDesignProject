@@ -9,6 +9,7 @@ router.use(express.static('../css'));
 router.use(express.static('src'));
 let mysql = require('mysql');
 
+
 //get the html page
 router.get('/', (req,res)=>{
     res.sendFile(__dirname + '../src/signup.html');
@@ -16,8 +17,6 @@ router.get('/', (req,res)=>{
 
 //post user
 router.post('/signup', async (req,res)=>{
-    //we get the body of the request as expected
-    console.log(req.body);
     //take all the values and form an insert query
     const values = [req.body.username, req.body.password,
         req.body.firstName, req.body.lastName, req.body.emailAddress]    
@@ -32,6 +31,31 @@ router.post('/signup', async (req,res)=>{
         })
     }
     catch(err){
+        res.status(500).json({message: err.message});
+    }
+});
+
+//logging in to application
+router.post('/login', async (req, res)=>{
+    //get values from JSON body
+    const username = req.body.username;
+    const password = req.body.password;
+    //error checking username and password go here
+    //hashing password
+    //form the query
+    const query = "SELECT * FROM user WHERE username = ? AND password = ?";
+    const values = [username, password];
+    //run query
+    //data comes back as JSON
+    try{    
+        con.query(query, values, (err, results, fields)=>{
+            if(err)
+                return res.status(400).json({message: err.message});
+            //console.log(results);
+            return res.status(200).json(results);
+        });
+    }
+    catch (err){
         res.status(500).json({message: err.message});
     }
 });
