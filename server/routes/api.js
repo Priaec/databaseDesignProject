@@ -64,8 +64,8 @@ router.post('/login', async (req, res)=>{
 let con = mysql.createConnection({
     host: "localhost",
     user: "root",
-    password: "",
-    database: "comp440"
+    password: " ",
+    database: "test"
   });
   
   //connect to the database, if error, then display error in console
