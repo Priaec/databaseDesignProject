@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const url = require('url');
 const path = require('path');
+const fs = require('fs');
+const multer = require('multer');
 const querystring = require('querystring');
 const { isModuleNamespaceObject } = require('util/types');
 const { ifError } = require('assert');
@@ -74,6 +76,24 @@ router.post('/login', async (req, res)=>{
         res.status(500).json({message: err.message});
     }
 });
+
+//initalize the database for
+router.post('/init',  async (req,res)=>{
+    const sql = fs.readFileSync(__dirname + '/comp440.sql', 'utf-8');
+    //table initialize dump sql file
+    try{
+        con.query(sql, function (err, result) {
+            if (err)
+                throw err;
+            con.end();
+            //we have successfully pushed the sql script to the database
+            return res.status(200).json({message: 'Initialized'})
+        });
+    }
+    catch(err){
+        return res.status(500).json({message: err.message});
+    }
+})
 
 //create connection to root connection
 let con = mysql.createConnection({
