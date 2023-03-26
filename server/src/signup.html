@@ -6,22 +6,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Welcome</title>
     <link rel="stylesheet" href="./css/signup.css">
-    <script src="./sripts/postUser.js"></script>
-    <script src="./sripts/router.js"></script>
+    <script src="./sripts/postUser.js" defer></script>
+    <!--<script src="./sripts/router.js" defer></script>-->
 </head>
 <body>
     <div class="form-box">
-        <form class="form" >
+        <form class="form">
             <span class="title">Sign up</span>
             <span class="subtitle">Create a free account with your email.</span>
             <div class="form-container">
               <input type="text" id="username" class="input" placeholder="Username">
               <input type="password" id="password" class="input" placeholder="Password">
+              <input type="password" id="cPassword" class="input" placeholder="Confirm Password">
               <input type="text" id="firstName" class="input" placeholder="First Name">  
               <input type="text" id="lastName" class="input" placeholder="Last Name"> 
               <input type="email" id="emailAddress" class="input" placeholder="Email">
             </div>
-            <button onclick="register()">Sign up</button>
+            <p id="error"></p>
+            <button type='button' onclick="register()">Sign up</button>
         </form>
         <div class="form-section">
           <p>Have an account? <a href="./login.html">Log in</a> </p>

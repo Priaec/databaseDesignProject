@@ -17,21 +17,36 @@ router.get('/', (req,res)=>{
 
 //post user
 router.post('/signup', async (req,res)=>{
-    //take all the values and form an insert query
+    /*Check if username exists*/
+    const userName = req.body.username;
+    const email = req.body.emailAddress;
+    //check if the username or email exists
+    const dupValues = [userName, email]
+    //query to check for duplicates
+    const dupQuery = "SELECT * FROM user WHERE username = ? OR email = ? LIMIT 1";
     const values = [req.body.username, req.body.password,
-        req.body.firstName, req.body.lastName, req.body.emailAddress]    
-    //form the query
+        req.body.firstName, req.body.lastName, req.body.emailAddress] 
     const query = "INSERT INTO user(username, password, firstName, lastName, email) VALUES(?,?,?,?,?);";
-    //assuming all value are of proper form, run the query
+    //check for duplicates
     try{
-        con.query(query, values, (err, rows)=>{
+        con.query(dupQuery, dupValues, (err, rows)=>{
             if (err)
-                throw err;
-            res.status(201).json(JSON.stringify(rows));
-        })
+                throw err
+            else if (rows.length > 0)
+                return res.status(400).json({message: 'Username and or email already taken'});   
+            //we know we are good in terms of no duplicates
+            //insert query
+            con.query(query, values, (err, rows)=>{
+                if (err)
+                    throw err
+                //successfully inserted the record
+                return res.status(201).json(JSON.stringify(rows));
+            });
+        }); 
     }
+    //if we get error along the way, send back error
     catch(err){
-        res.status(500).json({message: err.message});
+        return res.status(500).json({message: err.message});
     }
 });
 
@@ -64,8 +79,8 @@ router.post('/login', async (req, res)=>{
 let con = mysql.createConnection({
     host: "localhost",
     user: "root",
-    password: " ",
-    database: "test"
+    password: "",
+    database: "comp440"
   });
   
   //connect to the database, if error, then display error in console
