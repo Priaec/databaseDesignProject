@@ -84,3 +84,8 @@
   p#error{
     color: red;
   }
+
+  p#note{
+    color: lime;
+    font-size: larger;
+  }

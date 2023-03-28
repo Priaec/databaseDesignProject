@@ -18,7 +18,10 @@
               <input type="text" id="username" class="input" placeholder="Username">
               <input type="password" id="password" class="input" placeholder="Password">
             </div>
-            <button onclick="login()">Log In</button>
+            <p id="error"></p>
+            <p id="note"></p>
+            <button type='button' onclick="login()">Log In</button>
+            <button type='button' onclick="initialize()">Initialize Database</button>
         </form>
         <div class="form-section">
           <p>New Visitor? <a href="./signup.html">Register Here</a> </p>

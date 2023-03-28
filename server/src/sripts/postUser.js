@@ -16,6 +16,15 @@ function register(){
         displayError(msg);
         return false;
     }
+
+    //check if fields are of correct type
+    if(username.value.length <= 1){
+        const msg = 'username length is too short'
+        displayError(msg);
+        return false;
+    }
+
+
     //check if password and confirm password are the same
     if(password.value != cPassword.value){
         //return error message: confirm password and password do not match 
@@ -32,9 +41,7 @@ function register(){
         lastName: lastName.value,
         emailAddress: emailAddress.value
     }
-
-    console.log(data);
-    const msg = 'Username and or email already taken'
+    console.log({form: data});
     //fetch the URL, and run the insert statement on server.js
     fetch('http://localhost:3000/api/signup',{
         method: 'POST',
@@ -43,15 +50,16 @@ function register(){
             'Content-type': 'application/json'
         },
         body: JSON.stringify(data)
-    }).then((response)=> responseJson = response)
-    .then((responseJson)=>{
-        
-        console.log(responseJson);
+       }).then((response)=> responseJson = response)
+      .then((responseJson)=>{
         //if we have existing account
-        if(responseJson.message = msg){
-            displayError(msg);
-        }
-    })
+        const msg = 'Username and or email already taken';
+        if(responseJson.message == msg)
+            return displayError(msg);
+        //continue to login page
+        else
+            return window.location.href = 'http://localhost:3000/api/login.html'
+        });
 }
 
 //function just to display error in signup

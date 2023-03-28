@@ -13,21 +13,7 @@ app.use(
     extended: true,
   })
 );
-/*
-//create connection to root connection
-let con = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: ""
-});
 
-//connect to the database, if error, then display error in console
-con.connect(function(err) {
-  if (err) throw err;
-  console.log("Connected to Database!");
-});
-
-*/
 app.listen(port, () => {
   console.log(`Server listening at URL: http://localhost:${port}`);
 });

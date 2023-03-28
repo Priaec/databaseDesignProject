@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const url = require('url');
 const path = require('path');
+const crypto = require('crypto');
 const fs = require('fs');
 const multer = require('multer');
 const querystring = require('querystring');
@@ -10,6 +11,8 @@ const { ifError } = require('assert');
 router.use(express.static('../css'));
 router.use(express.static('src'));
 let mysql = require('mysql');
+const { query } = require('express');
+
 
 
 //get the html page
@@ -26,8 +29,6 @@ router.post('/signup', async (req,res)=>{
     const dupValues = [userName, email]
     //query to check for duplicates
     const dupQuery = "SELECT * FROM user WHERE username = ? OR email = ? LIMIT 1";
-    const values = [req.body.username, req.body.password,
-        req.body.firstName, req.body.lastName, req.body.emailAddress] 
     const query = "INSERT INTO user(username, password, firstName, lastName, email) VALUES(?,?,?,?,?);";
     //check for duplicates
     try{
@@ -37,6 +38,11 @@ router.post('/signup', async (req,res)=>{
             else if (rows.length > 0)
                 return res.status(400).json({message: 'Username and or email already taken'});   
             //we know we are good in terms of no duplicates
+            //hash the password away
+            const hashedPassword = hash(req.body.password);
+            console.log(hashedPassword)
+            const values = [req.body.username, hashedPassword,
+                req.body.firstName, req.body.lastName, req.body.emailAddress] 
             //insert query
             con.query(query, values, (err, rows)=>{
                 if (err)
@@ -58,18 +64,34 @@ router.post('/login', async (req, res)=>{
     const username = req.body.username;
     const password = req.body.password;
     //error checking username and password go here
+    console.log({username: username});
+    console.log({password: password});
+
+    if(username == "" || password == "" 
+        || typeof(username) == 'undefined'
+        || typeof(password) == 'undefined')
+    {
+        return res.status(200).json({message: 'No input value'});
+    }
     //hashing password
+    const hashedPassword = hash(password);
+    console.log(hashedPassword)
     //form the query
-    const query = "SELECT * FROM user WHERE username = ? AND password = ?";
-    const values = [username, password];
+    const query = "SELECT username FROM user WHERE username = ? AND password = ? LIMIT ?";
+    const limit = 1;
+    const values = [username, hashedPassword, limit];
     //run query
     //data comes back as JSON
     try{    
         con.query(query, values, (err, results, fields)=>{
             if(err)
                 return res.status(400).json({message: err.message});
-            //console.log(results);
-            return res.status(200).json(results);
+            //check for result, if we get one result, take that result back, otherwise dont take anything
+            console.log(results[0])
+            if(typeof(results[0]) == 'undefined')
+                return res.status(200).json({message: 'Invalid username and password combination'});
+            else
+                return res.status(201).json();
         });
     }
     catch (err){
@@ -79,21 +101,46 @@ router.post('/login', async (req, res)=>{
 
 //initalize the database for
 router.post('/init',  async (req,res)=>{
-    const sql = fs.readFileSync(__dirname + '/comp440.sql', 'utf-8');
-    //table initialize dump sql file
-    try{
-        con.query(sql, function (err, result) {
-            if (err)
-                throw err;
-            con.end();
-            //we have successfully pushed the sql script to the database
-            return res.status(200).json({message: 'Initialized'})
+    con.query('SHOW TABLES', (err, results) => {
+        if (err) {
+          console.error('Error getting list of tables:', err);
+          res.status(500).send('Error dropping tables');
+        } else {
+          const tables = results.map(result => result[`Tables_in_${con.config.database}`]);
+    
+          // Drop each table in the schema
+          for (const table of tables) {
+            con.query(`DROP TABLE IF EXISTS \`${table}\``, err => {
+              if (err) {
+                console.error(`Error dropping table ${table}:`, err);
+                return res.status(500).json({message: 'Error dropping table'});
+              } else {
+                console.log(`Table ${table} dropped successfully`);
+              }
+            });
+          }
+          console.log('All tables dropped successfully')
+          const sql = fs.readFileSync(__dirname + '/comp440.sql').toString();
+          console.log(sql);
+          const queries = sql.split(';');
+          queries.pop();
+          queries.forEach((query)=>{
+            con.query(query, function (err, result) {
+                if (err)
+                    return res.status(500).json({message: 'Error executing a query'});
+            });
         });
-    }
-    catch(err){
-        return res.status(500).json({message: err.message});
-    }
-})
+        console.log('All queries completed');
+        return res.status(200).json({message: 'Initialized'});
+        }
+      });
+});
+
+//hash a string
+hash = (str) =>{
+    const hash = crypto.createHash('sha256').update(str).digest('hex');
+    return hash;
+}
 
 //create connection to root connection
 let con = mysql.createConnection({
