@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Review</title>
+  </head>
+  <body>
+    <h1>Review: <%= item.title %></h1>
+    <form action="/review/<%= item.id %>" method="POST">
+      <label for="rating">Rating:</label>
+      <select name="rating">
+        <option value="excellent">Excellent</option>
+        <option value="good">Good</option>
+        <option value="fair">Fair</option>
+        <option value="poor">Poor</option>
+      </select>
+      <br />
+      <label for="description">Description:</label>
+      <textarea name="description" required></textarea>
+      <br />
+      <input type="submit" value="Submit Review" />
+    </form>
+    <a href="/">Back</a>
+  </body>
+</html>
