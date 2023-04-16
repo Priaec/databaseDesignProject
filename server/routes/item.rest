@@ -1,0 +1,19 @@
+### ROUTE TESTING FOR ITEM TABLE
+POST http://localhost:3000/api/add-item
+Content-Type: application/json
+
+{
+    "title": "Iphone 14",
+    "description": "Brand New",
+    "category": "Electronics",
+    "price": "100"
+}
+
+###
+
+GET http://localhost:3000/api/search
+
+
+###
+
+GET http://localhost:3000/api/

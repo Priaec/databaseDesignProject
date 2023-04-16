@@ -14,6 +14,9 @@ let mysql = require('mysql');
 const { query } = require('express');
 
 
+// Parse URL-encoded request bodies
+router.use(express.urlencoded({ extended: true }));
+
 
 //get the html page
 router.get('/', (req,res)=>{
@@ -142,13 +145,67 @@ hash = (str) =>{
     return hash;
 }
 
+//add a new item in the item list
+router.post('/add-item', (req, res) => {
+  const { title, description, category, price } = req.body;
+  const query = 'INSERT INTO items (title, description, category, price) VALUES (?, ?, ?, ?)';
+  con.query(query, [title, description, category, price], (err, result) => {
+    if (err) throw err;
+    res.redirect('/');
+  });
+});
+
+// Search items
+router.get('/search', async (req, res) => {
+  const { category } = req.query;
+  let query = 'SELECT * FROM items WHERE category LIKE ?';
+  if(category == null || undefined)
+    query = 'SELECT * FROM items';
+  try{  
+    con.query(query, [`%${category}%`], (err, searchResults) => {
+      if (err) throw err;
+      console.log(searchResults);
+      res.status(200).render('drop', { searchResults });
+    });
+  }
+  catch(err){
+    res.status(500).json({message: err.message});
+  }
+});
+
+// Render review page
+router.get('/review/:id', (req, res) => {
+  const { id } = req.params;
+  const query = 'SELECT * FROM items WHERE id = ?';
+  con.query(query, [id], (err, result) => {
+    if (err) throw err;
+    res.render('review', { item: result[0] });
+  });
+});
+
+// Add review
+router.post('/review/:id', (req, res) => {
+  const { id } = req.params;
+  const { rating, description } = req.body;
+  const query = 'INSERT INTO reviews (item_id, rating, description) VALUES (?, ?, ?)';
+  con.query(query, [id, rating, description], (err, result) => {
+    if (err) throw err;
+    res.redirect('/api/search');
+  });
+});
+
+// Render index page with empty search results
+router.get('/', (req, res) => {
+    res.render('index', { searchResults: [] });
+});
+
 //create connection to root connection
 let con = mysql.createConnection({
     host: "localhost",
     user: "root",
     password: "",
     database: "comp440"
-  });
+});
   
   //connect to the database, if error, then display error in console
   con.connect(function(err) {

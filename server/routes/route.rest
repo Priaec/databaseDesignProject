@@ -45,3 +45,14 @@ Content-Type: application/json
     "username": "adminn",
     "password": "12345"
 }
+
+###
+POST http://localhost:3000/api/add-item
+Content-Type: application/json
+
+{
+    "title": "Iphone 14",
+    "description": "Brand New",
+    "category": "Electronics",
+    "price": "100"
+}
