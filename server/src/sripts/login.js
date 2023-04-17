@@ -34,7 +34,7 @@ login = () =>{
         else{
             console.log('hello');
             //return window.location.href = 'http://localhost:3000/api/index.html'
-            return window.location.href = 'http://localhost:3000/api/search'
+            return window.location.href = 'http://localhost:3000/api/search?userName='+username.value
         }
     })
 }

@@ -1,5 +1,5 @@
 CREATE TABLE `user` (
-  `username` varchar(50) NOT NULL,
+  `username` varchar(50) NOT NULL PRIMARY KEY,
   `password` varchar(300) NOT NULL,
   `firstName` varchar(50) NOT NULL,
   `lastName` varchar(50) NOT NULL,
@@ -15,6 +15,14 @@ CREATE TABLE `user` (
   `description` TEXT NOT NULL,
   `category` VARCHAR(255) NOT NULL,
   `price` DECIMAL(10, 2) NOT NULL
+);ALTER TABLE `items` ADD COLUMN `username` VARCHAR(50
+);ALTER TABLE `items` ADD CONSTRAINT `fk_items_username` FOREIGN KEY (`username`) REFERENCES `user`(`username`
+);CREATE TABLE `reviews` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `rating` ENUM('excellent', 'good', 'fair', 'poor') NOT NULL,
+  `description` TEXT NOT NULL
+);ALTER TABLE `reviews` ADD COLUMN `item_id` INT NOT NULL
+;ALTER TABLE `reviews` ADD CONSTRAINT `fk_reviews_id` FOREIGN KEY (`item_id`) REFERENCES `items`(`id`
 );
 
 

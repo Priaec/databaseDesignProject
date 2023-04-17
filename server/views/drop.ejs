@@ -12,7 +12,7 @@
     <!--<form id="my-form" action="/api/add-item" method="POST">-->
     <form id="myForm">
       <input id="title" type="text" name="title" placeholder="Title" required />
-
+      <input type="hidden" name="userName" value="<%= userName %>">
       <textarea id="description" name="description" placeholder="Description" required></textarea>
 
       <input id="category" type="text" name="category" placeholder="Category" required />
@@ -24,8 +24,9 @@
 
     <h1>Search by category</h1>
     <!-- Form to search for items in the database -->
-    <form action="/api/search" method="GET">
+    <form action="/api/search?userName=<%= encodeURIComponent(userName) %>&category=<%= encodeURIComponent(category) %>" method="GET">
       <input type="text" name="category" placeholder="Category" />
+      <input type="hidden" name="userName" value="<%= userName %>">
       <button type="submit">Search</button>
     </form>
 
@@ -49,6 +50,7 @@
             <td class="item-price">$<%= item.price %></td>
             <td class="item-description"><%= item.description %></td>
             <td class="item-category">Category: <%= item.category %></td>
+            <td class="item-category">Item From: <%= item.username %></td>
             <td class="item-addReview "><a href="/api/review/<%= item.id %>"><p class="review">Add Review</p></a></td>
           </tr>
         <% }) %>

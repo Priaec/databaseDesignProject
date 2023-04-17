@@ -147,17 +147,24 @@ hash = (str) =>{
 
 //add a new item in the item list
 router.post('/add-item', (req, res) => {
-  const { title, description, category, price } = req.body;
-  const query = 'INSERT INTO items (title, description, category, price) VALUES (?, ?, ?, ?)';
-  con.query(query, [title, description, category, price], (err, result) => {
+  const { title, description, category, price, userName } = req.body;
+  console.log({userName: userName})
+  const query = 'INSERT INTO items (title, description, category, price, username) VALUES (?, ?, ?, ?, ?)';
+  con.query(query, [title, description, category, price, userName], (err, result) => {
     if (err) throw err;
-    res.redirect('/');
+    //res.redirect('/?userName=${userName}&category=');
+    const url = '/api/search?category=&userName=' + encodeURIComponent(userName)
+    console.log(url)
+    res.setHeader('Cache-Control', 'no-cache');
+    setTimeout(()=>{
+      res.redirect(url);
+    }, 1000)
   });
 });
 
 // Search items
 router.get('/search', async (req, res) => {
-  const { category } = req.query;
+  const { category, userName } = req.query;
   let query = 'SELECT * FROM items WHERE category LIKE ?';
   if(category == null || undefined)
     query = 'SELECT * FROM items';
@@ -165,7 +172,7 @@ router.get('/search', async (req, res) => {
     con.query(query, [`%${category}%`], (err, searchResults) => {
       if (err) throw err;
       console.log(searchResults);
-      res.status(200).render('drop', { searchResults });
+      res.status(200).render('drop', { searchResults , userName: userName, category: ''});
     });
   }
   catch(err){
