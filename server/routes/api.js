@@ -12,8 +12,10 @@ router.use(express.static('../css'));
 router.use(express.static('src'));
 let mysql = require('mysql');
 const { query } = require('express');
+const bodyParser = require('body-parser');
 
 
+router.use(bodyParser.urlencoded({ extended: true }))
 
 //get the html page
 router.get('/', (req,res)=>{
@@ -210,18 +212,22 @@ router.post('/review/:id', (req, res) => {
   const { rating, description, username } = req.body;
   //we need to find how many times the user has made a review for this item
   const reviewQuery = 'SELECT COUNT(id) AS review_count FROM reviews WHERE item_id = ? GROUP BY username having username = ?';
+  console.log(`SELECT COUNT(id) AS review_count FROM reviews WHERE item_id = ${id}
+   GROUP BY username having username = ${username}`)
   con.query(reviewQuery, [id, username], (err, result)=>{
     if(err)
       return res.status(500).json({message: 'Error retrieving count of reviews for given user and item selected'});
-    console.log({anyResults: result});
-    const numReviews = 0;
-    if(result == [])
+    console.log(result);
+    let numReviews = 0;
+    if(result.length !== 0)
       numReviews = result[0].review_count;
-    if (numReviews >= 3)
+    console.log(`You have ${numReviews} reviews for this item`)
+    if (numReviews >= 3){
       return res.redirect(`/api/search?userName=${username}`);
+    }
     const query = 'INSERT INTO reviews (item_id, rating, description, username) VALUES (?, ?, ?, ?)';
-    console.log(`INSERT INTO reviews (item_id, rating, description, username) VALUES
-     (${id}, ${rating}, ${description}, ${username})`)
+    //console.log(`INSERT INTO reviews (item_id, rating, description, username) VALUES
+    // (${id}, ${rating}, ${description}, ${username})`)
     con.query(query, [id, rating, description, username], (err, result) => {
       if (err) 
         return res.status(500).json({message: 'Error adding review'});

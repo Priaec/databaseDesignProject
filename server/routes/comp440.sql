@@ -1,5 +1,5 @@
 CREATE TABLE `user` (
-  `username` varchar(50) NOT NULL,
+  `username` varchar(50) NOT NULL PRIMARY KEY,
   `password` varchar(300) NOT NULL,
   `firstName` varchar(50) NOT NULL,
   `lastName` varchar(50) NOT NULL,
@@ -14,16 +14,16 @@ CREATE TABLE `user` (
   `title` VARCHAR(255) NOT NULL,
   `description` TEXT NOT NULL,
   `category` VARCHAR(255) NOT NULL,
-  `price` DECIMAL(10, 2) NOT NULL
-);ALTER TABLE `items` ADD COLUMN `username` VARCHAR(50
-);ALTER TABLE `items` ADD CONSTRAINT `fk_items_username` FOREIGN KEY (`username`) REFERENCES `user`(`username`
+  `price` DECIMAL(10, 2) NOT NULL,
+  `username` VARCHAR(50) NOT NULL
+);ALTER TABLE `items` ADD CONSTRAINT `fk_username` FOREIGN KEY (`username`) REFERENCES `user`(`username`
 );CREATE TABLE `reviews` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `rating` ENUM('excellent', 'good', 'fair', 'poor') NOT NULL,
   `description` TEXT NOT NULL,
-  `username` VARCHAR(50) NOT NULL
-);ALTER TABLE `reviews` ADD COLUMN `item_id` INT NOT NULL
-;ALTER TABLE `reviews` ADD CONSTRAINT `fk_reviews_id` FOREIGN KEY (`item_id`) REFERENCES `items`(`id`
+  `username` VARCHAR(50) NOT NULL,
+  `item_id` INT NOT NULL
+);ALTER TABLE `reviews` ADD CONSTRAINT `fk_reviews_id` FOREIGN KEY (`item_id`) REFERENCES `items`(`id`
 );ALTER TABLE `reviews` ADD CONSTRAINT `fk_reviews_username` FOREIGN KEY (`username`) REFERENCES `items`(`username`
 );INSERT INTO `items` (`title`, `description`, `category`, `price`, `username`) VALUES
 ('Iphone 14', 'Produced 2023', 'Electronics', '899', 'admin'),
@@ -37,7 +37,4 @@ CREATE TABLE `user` (
 ('4', 'excellent', 'Durable and has lasted a long time.', 'admin'),
 ('2', 'poor', 'Broke on me within the first 2 days. Quite upsetting!', 'JoshuaCohen'),
 ('5', 'excellent', 'Durable and has lasted a long time. Very affordable!', 'cassi123'
-);SET FOREIGN_KEY_CHECKS = 0
-;
-
-
+);SET FOREIGN_KEY_CHECKS = 1;

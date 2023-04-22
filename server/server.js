@@ -7,6 +7,7 @@ let mysql = require('mysql');
 
 const apiRouter = require('./routes/api');
 app.use('/api', apiRouter);
+app.set('view engine', 'ejs');
 
 app.use(
   express.urlencoded({
