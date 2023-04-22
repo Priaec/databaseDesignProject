@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Review</title>
+  </head>
+  <body>
+    <h1>Review: <%= item.title %></h1>
+    <form action="/api/review/<%= item.id %>" method="POST">
+      <label for="rating">Rating:</label>
+      <select name="rating">
+        <option value="excellent">Excellent</option>
+        <option value="good">Good</option>
+        <option value="fair">Fair</option>
+        <option value="poor">Poor</option>
+      </select>
+      <br />
+      <label for="description">Description:</label>
+      <textarea name="description" required></textarea>
+      <br />
+      <input type="hidden" name="username" value="<%= userName %>">
+      <input type="submit" value="Submit Review" />
+    </form>
+    <a href="../search?userName=<%= userName %>">Back</a>
+    <!--Reviews will be placed here-->
+    <h2>Reviews For this item</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>userName</th>
+          <th>Rating</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Loop through the search results and display each item in a row -->
+        <% reviews.forEach(item => { %>
+          <tr class="">
+            <td class=""><%= item.username %></td>
+            <td class=""><%= item.rating %></td>
+            <td class="item-description"><%= item.description %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </body>
+</html>

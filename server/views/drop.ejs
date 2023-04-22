@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Item Database</title>
+  </head>
+  <body>
+    <h1 style="font-size: 4rem;">COMP 440 Store</h1>
+    <h1>Add an item</h1>
+    <h2>User: <%= encodeURIComponent(userName) %></h2>
+    <!-- Form to add a new item to the database -->
+    <!--<form id="my-form" action="/api/add-item" method="POST">-->
+    <form id="myForm">
+      <input id="title" type="text" name="title" placeholder="Title" required />
+      <input type="hidden" name="userName" value="<%= userName %>">
+      <textarea id="description" name="description" placeholder="Description" required></textarea>
+
+      <input id="category" type="text" name="category" placeholder="Category" required />
+      <label for="price">Price:</label>
+      <input id="price" type="number" name="price" step="0.01" placeholder="Price ($1.99)" required />
+      <br />
+      <button id="addItem" type="submit">+</button>
+    </form>
+
+    <h1>Search by category</h1>
+    <!-- Form to search for items in the database -->
+    <form action="/api/search?userName=<%= encodeURIComponent(userName) %>&category=<%= encodeURIComponent(category) %>" method="GET">
+      <input type="text" name="category" placeholder="Category" />
+      <input type="hidden" name="userName" value="<%= userName %>">
+      <button type="submit">Search</button>
+    </form>
+
+    <!-- Table to display the search results -->
+    <h1>Search Results</h1>
+    <table>
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Description</th>
+          <th>Category</th>
+          <th>Price</th>
+          <th>Review</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Loop through the search results and display each item in a row -->
+        <% searchResults.forEach(item => { %>
+          <tr class="item-container">
+            <td class="item-title"><%= item.title %></td>
+            <td class="item-price">$<%= item.price %></td>
+            <td class="item-description"><%= item.description %></td>
+            <td class="item-category">Category: <%= item.category %></td>
+            <td class="item-category">Item From: <%= item.username %></td>
+            <td class="item-addReview ">
+              <a class="review" href="/api/review/<%= item.id %>?username=<%= encodeURIComponent(userName) %>">
+                <!--<p class="review">Add Review</p>-->
+                Add Review
+              </a>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+    <script defer>
+      //const form = document.querySelector('#my-form');
+      //const button = document.getElementById('postItem');
+      const form = document.getElementById('myForm');
+      form.addEventListener('submit', async (event)=>{
+          event.preventDefault()
+          //get the form elements
+          const formData = new FormData(form);
+          //construct a the body as JSON
+          const body = {};
+          formData.forEach((value, key) => {
+            body[key] = value;
+          });
+
+          //make the promise, handle the response
+          try{
+              fetch('http://localhost:3000/api/add-item', {
+                  method: "POST",
+                  headers:{
+                      Accept: 'application/json',
+                      'Content-type': 'application/json'
+                  },
+                  body: JSON.stringify(body)
+              }).then((response)=> responseJson = response)
+              .then((responseJson)=>{
+                  console.log('Success')
+              });
+          }
+          catch(err){
+              console.log({message: err.message})
+          }
+      });
+    </script>
+  <style>
+    *{
+      font-family: sans-serif;
+    }
+
+    body{
+      background: linear-gradient(to right, #090909, #4b4b4b);
+    }
+
+    form{
+      /*background-color: aqua;*/
+      background: linear-gradient(to right, #003528, #006C61);
+      padding: 10px 16px;
+      border-radius: 25px;
+      width: 40%;
+      display: flex;
+      flex-direction: column;
+    }
+
+
+    form *{
+      position: relative;
+      margin: 10px;
+      height: 20%;
+    }
+
+    input, textarea{
+      height: 50px;
+      border: 5px;
+      padding-left: 15px;
+      border-color: #2aba81;
+      background-color: transparent;
+      border-style: solid;
+      border-radius: 15px; 
+      font-size: 2rem;
+    }
+
+    h1{
+      color: #C0C0C0;
+    }
+
+    label{
+      font-size: 40px;
+      color:#2aba81;
+    }
+
+    tr{
+      display: flex;
+      flex-direction: row;
+    }
+
+    tr.item-container{
+      margin: 10px;
+      padding: 20px;
+      background: linear-gradient(to left, #006C61, #007D60) ;
+      border-radius: 10%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    td.item-title{
+      color: #C0C0C0;
+      font-size: 4em;
+
+    }
+
+    td.item-description{
+      color: #9A9A9A;
+      font-size: 1.2em;
+    }
+
+    td.item-price{
+      font-size: 2.5rem;
+      color: rgb(254, 118, 140);
+    }
+
+    /*All hyperlinks*/
+    a:link{ 
+      text-decoration: none;
+      
+    }
+
+    td.item-addReview{
+      background-color: #0066ff;
+      /*color: #fff;*/
+      border: 0;
+      border-radius: 25px;
+      padding: 10px 8px;
+      height: 30px;
+      width: fit-content;
+      font-size: 1.6rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color .2s ease;
+    }
+
+    td.item-addReview:hover{
+      background-color: #7700ff;
+    }
+
+    td.item-addReview:active{
+      background-color: #00c8ff;
+    }
+
+    /*Button*/
+    button{
+      background-color: #0066ff;
+      color: #fff;
+      border: 0;
+      border-radius: 25px;
+      padding: 10px 16px;
+      font-size: 1.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color .3s ease;
+    }
+
+
+    button#addItem {
+      width: fit-content;
+    }
+
+    p.review{
+      color: #fff;
+      font-size: 0.7em;
+    }
+  </style>
+  </body>
+</html>
