@@ -36,5 +36,5 @@ CREATE TABLE `user` (
 ('1', 'good', 'Great quality, however, it is a high price.', 'Student1'),
 ('4', 'excellent', 'Durable and has lasted a long time.', 'admin'),
 ('2', 'poor', 'Broke on me within the first 2 days. Quite upsetting!', 'JoshuaCohen'),
-('5', 'excellent', 'Durable and has lasted a long time. Very affordable!', 'cassi123'
+('1', 'excellent', 'Durable and has lasted a long time. Very affordable!', 'cassi123'
 );SET FOREIGN_KEY_CHECKS = 1;

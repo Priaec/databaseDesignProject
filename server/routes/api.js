@@ -210,30 +210,41 @@ router.post('/review/:id', (req, res) => {
   //id is the id of the item
   const { id } = req.params;
   const { rating, description, username } = req.body;
-  //we need to find how many times the user has made a review for this item
-  const reviewQuery = 'SELECT COUNT(id) AS review_count FROM reviews WHERE item_id = ? GROUP BY username having username = ?';
-  console.log(`SELECT COUNT(id) AS review_count FROM reviews WHERE item_id = ${id}
-   GROUP BY username having username = ${username}`)
-  con.query(reviewQuery, [id, username], (err, result)=>{
-    if(err)
-      return res.status(500).json({message: 'Error retrieving count of reviews for given user and item selected'});
-    console.log(result);
-    let numReviews = 0;
-    if(result.length !== 0)
-      numReviews = result[0].review_count;
-    console.log(`You have ${numReviews} reviews for this item`)
-    if (numReviews >= 3){
+  //run a query for who made this review, if it is the user currenty using, then return back to the main screen
+  const userItemQuery = 'SELECT * FROM items WHERE username = ? AND id = ?';
+  console.log(`SELECT * FROM items WHERE username = ${username} AND id = ${id}`)
+  con.query(userItemQuery, [username, id], (err, result)=>{
+    if (err)
+      return res.status(500).json({message: 'Error checking if the item is your item'});
+    //pull the result, if we get a result back, then it means that the user is attempting to write a review for their own item
+    console.log({result: result})
+    if(result.length != 0)  //if the user is trying to write a review for their own item, return back without doing anything
       return res.redirect(`/api/search?userName=${username}`);
-    }
-    const query = 'INSERT INTO reviews (item_id, rating, description, username) VALUES (?, ?, ?, ?)';
-    //console.log(`INSERT INTO reviews (item_id, rating, description, username) VALUES
-    // (${id}, ${rating}, ${description}, ${username})`)
-    con.query(query, [id, rating, description, username], (err, result) => {
-      if (err) 
-        return res.status(500).json({message: 'Error adding review'});
-      res.redirect(`/api/search?userName=${username}`);
+    //we need to find how many times the user has made a review for this item
+    const reviewQuery = 'SELECT COUNT(id) AS review_count FROM reviews WHERE item_id = ? GROUP BY username having username = ?';
+    console.log(`SELECT COUNT(id) AS review_count FROM reviews WHERE item_id = ${id}
+    GROUP BY username having username = ${username}`)
+    con.query(reviewQuery, [id, username], (err, result)=>{
+      if(err)
+        return res.status(500).json({message: 'Error retrieving count of reviews for given user and item selected'});
+      console.log(result);
+      let numReviews = 0;
+      if(result.length !== 0)
+        numReviews = result[0].review_count;
+      console.log(`You have ${numReviews} reviews for this item`)
+      if (numReviews >= 3){
+        return res.redirect(`/api/search?userName=${username}`);
+      }
+      const query = 'INSERT INTO reviews (item_id, rating, description, username) VALUES (?, ?, ?, ?)';
+      //console.log(`INSERT INTO reviews (item_id, rating, description, username) VALUES
+      // (${id}, ${rating}, ${description}, ${username})`)
+      con.query(query, [id, rating, description, username], (err, result) => {
+        if (err) 
+          return res.status(500).json({message: 'Error adding review'});
+        res.redirect(`/api/search?userName=${username}`);
+      });
     });
-  });
+  })
 });
 
 // Render index page with empty search results
