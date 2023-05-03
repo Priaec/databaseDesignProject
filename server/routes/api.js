@@ -177,7 +177,15 @@ router.get('/search', async (req, res) => {
   try{  
     con.query(query, [`%${category}%`], (err, searchResults) => {
       if (err) throw err;
-      res.status(200).render('drop', { searchResults , userName: userName, category: ''});
+      //res.status(200).render('drop', { searchResults , userName: userName, category: ''});
+      //send back the most expensive item for each category, just item name, price, and category
+      const maxQuery = 'SELECT title, category, max(price) AS price FROM items GROUP BY category;'
+      con.query(maxQuery, (err, maxResults)=>{
+        if (err)
+          res.status(404).json({message: err.message})
+        console.log(maxResults)
+        res.status(200).render('drop', {searchResults, userName: userName, category: '', maxResults})
+      });
     });
   }
   catch(err){
@@ -212,7 +220,7 @@ router.post('/review/:id', (req, res) => {
   const { rating, description, username } = req.body;
   //run a query for who made this review, if it is the user currenty using, then return back to the main screen
   const userItemQuery = 'SELECT * FROM items WHERE username = ? AND id = ?';
-  console.log(`SELECT * FROM items WHERE username = ${username} AND id = ${id}`)
+  //console.log(`SELECT * FROM items WHERE username = ${username} AND id = ${id}`)
   con.query(userItemQuery, [username, id], (err, result)=>{
     if (err)
       return res.status(500).json({message: 'Error checking if the item is your item'});
@@ -222,8 +230,8 @@ router.post('/review/:id', (req, res) => {
       return res.redirect(`/api/search?userName=${username}`);
     //we need to find how many times the user has made a review for this item
     const reviewQuery = 'SELECT COUNT(id) AS review_count FROM reviews WHERE item_id = ? GROUP BY username having username = ?';
-    console.log(`SELECT COUNT(id) AS review_count FROM reviews WHERE item_id = ${id}
-    GROUP BY username having username = ${username}`)
+    //console.log(`SELECT COUNT(id) AS review_count FROM reviews WHERE item_id = ${id}
+    //GROUP BY username having username = ${username}`)
     con.query(reviewQuery, [id, username], (err, result)=>{
       if(err)
         return res.status(500).json({message: 'Error retrieving count of reviews for given user and item selected'});
@@ -236,16 +244,57 @@ router.post('/review/:id', (req, res) => {
         return res.redirect(`/api/search?userName=${username}`);
       }
       const query = 'INSERT INTO reviews (item_id, rating, description, username) VALUES (?, ?, ?, ?)';
-      //console.log(`INSERT INTO reviews (item_id, rating, description, username) VALUES
-      // (${id}, ${rating}, ${description}, ${username})`)
+      console.log(`INSERT INTO reviews (item_id, rating, description, username) VALUES 
+       (${id}, ${rating}, ${description}, ${username})`)
       con.query(query, [id, rating, description, username], (err, result) => {
         if (err) 
-          return res.status(500).json({message: 'Error adding review'});
+          return res.status(500).json({message: `Error adding review ${err.message}`});
         res.redirect(`/api/search?userName=${username}`);
       });
     });
   })
 });
+
+// Render Posts Page
+router.post('/posts', (req,res)=>{
+  const { userName } = req.body;
+  //pull the reviews that were excellent from this user
+  const query = "SELECT items.title FROM items INNER JOIN reviews ON items.id = reviews.item_id WHERE reviews.username = ? AND reviews.rating IN ('good', 'excellent');"
+  con.query(query, [userName], (err, highRatings)=>{
+    if(err)
+      res.status(400).json({message: err.message})
+    //run query for users who have not written a poor review
+    const poorQuery = "SELECT username FROM user WHERE NOT EXISTS (SELECT 1 FROM reviews WHERE reviews.username = user.username AND reviews.rating = 'poor');"
+    con.query(poorQuery, (err, poorResults)=>{
+      if (err)
+        res.status(400).json({message: `Error with reading poor review results-> ${err.message}`})
+      res.status(200).render('posts', {userName: userName, highRatings, poorResults})
+    });
+  });
+});
+
+//Render Details Page
+router.post('/details', (req,res)=>{
+  const { userName } = req.body;
+  //Check all users who have only made poor reviews
+  const query = "SELECT username FROM user WHERE NOT EXISTS (SELECT 1 FROM reviews WHERE reviews.username = user.username AND rating IN ('excellent', 'good', 'fair'));"
+  con.query(query, (err, poorResults)=>{
+    if(err)
+      res.status(400).json({message: `Error finding query for only poor reviews (8)->${err.message}`})
+    const noPoorQuery = "SELECT username FROM user WHERE NOT EXISTS (SELECT 1 FROM reviews WHERE reviews.username = user.username AND rating like 'poor');"
+    con.query(noPoorQuery, (err, noPoorResults)=>{
+      if(err)
+        res.status(400).json({message: `Error finding query for no poor reviews (9)->${err.message}`})
+      res.status(200).render('details', { userName, poorResults, noPoorResults })
+    });
+  });
+});
+
+//Render Users Page
+router.post('/users', (req,res)=>{
+  const { userName } = req.body;
+  res.status(200).render('users', { userName })
+})
 
 // Render index page with empty search results
 router.get('/', (req, res) => {

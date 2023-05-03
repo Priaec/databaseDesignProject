@@ -7,11 +7,29 @@
   </head>
   <body>
     <h1 style="font-size: 4rem;">COMP 440 Store</h1>
+
+    <!-- Menu -->
+    <div id="menu">
+      <form action="/api/posts" method="post">
+        <input type="hidden" name="userName" value="<%= userName %>">
+        <button style="height: max-content;" type="submit">posts</button>
+      </form>
+      <form action="/api/details" method="post">
+        <input type="hidden" name="userName" value="<%= userName %>">
+        <button type="submit">details</button>
+      </form>
+      <form action="/api/users" method="post">
+        <input type="hidden" name="userName" value="<%= userName %>">
+        <button type="submit">users</button>
+      </form>
+    </div>
+
+
     <h1>Add an item</h1>
     <h2>User: <%= encodeURIComponent(userName) %></h2>
     <!-- Form to add a new item to the database -->
     <!--<form id="my-form" action="/api/add-item" method="POST">-->
-    <form id="myForm">
+    <form id="myForm" class="form">
       <input id="title" type="text" name="title" placeholder="Title" required />
       <input type="hidden" name="userName" value="<%= userName %>">
       <textarea id="description" name="description" placeholder="Description" required></textarea>
@@ -22,6 +40,16 @@
       <br />
       <button id="addItem" type="submit">+</button>
     </form>
+    <span style="float: right;">
+      <h1>Most Expensive Items for each Category</h1>
+      <% maxResults.forEach(item => { %>
+        <div class="item-container">
+          <p class="review"><%= item.title %></p>
+          <p class="item-description"><%= item.category %></p>
+          <p class="item-price">$<%= item.price %></p>
+        </div>
+      <% }) %>
+    </span>
 
     <h1>Search by category</h1>
     <!-- Form to search for items in the database -->
@@ -33,6 +61,7 @@
 
     <!-- Table to display the search results -->
     <h1>Search Results</h1>
+    <!--Show the most expensive item for each category-->
     <table>
       <thead>
         <tr>
@@ -104,7 +133,7 @@
       background: linear-gradient(to right, #090909, #4b4b4b);
     }
 
-    form{
+    .form{
       /*background-color: aqua;*/
       background: linear-gradient(to right, #003528, #006C61);
       padding: 10px 16px;
@@ -113,7 +142,6 @@
       display: flex;
       flex-direction: column;
     }
-
 
     form *{
       position: relative;
@@ -146,7 +174,7 @@
       flex-direction: row;
     }
 
-    tr.item-container{
+    .item-container{
       margin: 10px;
       padding: 20px;
       background: linear-gradient(to left, #006C61, #007D60) ;
@@ -155,18 +183,23 @@
       flex-direction: column;
     }
 
-    td.item-title{
+    .item-title{
       color: #C0C0C0;
       font-size: 4em;
 
     }
 
-    td.item-description{
+    #menu{
+      display: flex;
+      flex-direction: row;
+    }
+
+    .item-description{
       color: #9A9A9A;
       font-size: 1.2em;
     }
 
-    td.item-price{
+    .item-price{
       font-size: 2.5rem;
       color: rgb(254, 118, 140);
     }
@@ -210,8 +243,8 @@
       font-weight: 600;
       cursor: pointer;
       transition: background-color .3s ease;
+      height: max-content;
     }
-
 
     button#addItem {
       width: fit-content;
@@ -219,7 +252,7 @@
 
     p.review{
       color: #fff;
-      font-size: 0.7em;
+      font-size: 2em;
     }
   </style>
   </body>

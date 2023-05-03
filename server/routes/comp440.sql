@@ -24,7 +24,7 @@ CREATE TABLE `user` (
   `username` VARCHAR(50) NOT NULL,
   `item_id` INT NOT NULL
 );ALTER TABLE `reviews` ADD CONSTRAINT `fk_reviews_id` FOREIGN KEY (`item_id`) REFERENCES `items`(`id`
-);ALTER TABLE `reviews` ADD CONSTRAINT `fk_reviews_username` FOREIGN KEY (`username`) REFERENCES `items`(`username`
+);ALTER TABLE `reviews` ADD CONSTRAINT `fk_reviews_username` FOREIGN KEY (`username`) REFERENCES `user`(`username`
 );INSERT INTO `items` (`title`, `description`, `category`, `price`, `username`) VALUES
 ('Iphone 14', 'Produced 2023', 'Electronics', '899', 'admin'),
 ('Ninja Blender', 'Wonderful for making shakes and smoothies', 'Appliances', '199.89', 'Student1'),

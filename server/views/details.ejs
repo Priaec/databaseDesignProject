@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Details</title>
+  </head>
+  <body>
+    <a href="search?userName=<%= userName %>">Back</a>
+    <div>
+        <p>People Who have not written a poor review</p>
+        <% poorResults.forEach(item => { %>
+            <p class="review"><%= item.username %></p>
+        <% }) %>
+    </div>
+    <div>
+        <p>Users that have never recieved any poor reviews</p>
+        <% noPoorResults.forEach(item => { %>
+            <p class="review"><%= item.username %></p>
+        <% }) %>
+    </div>
+  </body>
+  <style>
+    div{
+        background-color: cadetblue;
+        width: fit-content;
+    }
+  </style>
+</html>
