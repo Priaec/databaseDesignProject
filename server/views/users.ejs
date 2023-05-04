@@ -7,5 +7,17 @@
   </head>
   <body>
     <a href="search?userName=<%= userName %>">Back</a>
+    <div>
+      <p>People Who have not written a poor review</p>
+      <% onlyExcRev.forEach(item => { %>
+          <p class="review"><%= item.username %></p>
+      <% }) %>
+  </div>
   </body>
+  <style>
+    div{
+        background-color: cadetblue;
+        width: fit-content;
+    }
+  </style>
 </html>

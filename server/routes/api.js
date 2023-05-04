@@ -258,7 +258,7 @@ router.post('/review/:id', (req, res) => {
 // Render Posts Page
 router.post('/posts', (req,res)=>{
   const { userName } = req.body;
-  //pull the reviews that were excellent from this user
+  //pull the reviews that were excellent from this user 
   const query = "SELECT items.title FROM items INNER JOIN reviews ON items.id = reviews.item_id WHERE reviews.username = ? AND reviews.rating IN ('good', 'excellent');"
   con.query(query, [userName], (err, highRatings)=>{
     if(err)
@@ -293,7 +293,13 @@ router.post('/details', (req,res)=>{
 //Render Users Page
 router.post('/users', (req,res)=>{
   const { userName } = req.body;
-  res.status(200).render('users', { userName })
+  const query = "SELECT items.id, items.title FROM items JOIN reviews ON items.id = reviews.item_id WHERE reviews.rating = 'excellent' GROUP BY items.id, items.title HAVING COUNT(DISTINCT reviews.username) = (SELECT COUNT(*) FROM user)";
+  con.query(query, (err, onlyExcRev)=>{
+    if(err)
+      res.status(400).json({message: `Error finding query for items only excellent (3)->${err.message}`})
+    res.status(200).render('users', { userName, onlyExcRev })
+  })
+  //res.status(200).render('users', { userName })
 })
 
 // Render index page with empty search results
